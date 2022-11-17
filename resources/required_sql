@@ -1,0 +1,146 @@
+CREATE TABLE `events` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `location` varchar(45) DEFAULT NULL,
+  `day` varchar(45) DEFAULT NULL,
+  `time` varchar(45) NOT NULL,
+  `duration` int DEFAULT NULL,
+  `type` varchar(45) NOT NULL,
+  `repeating` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+);
+
+CREATE TABLE `DISCORD` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `class` varchar(255) NOT NULL,
+  `cr` int NOT NULL,
+  `last_updated` datetime NOT NULL,
+  `discord_id` varchar(255) NOT NULL,
+  `is_clan_member` tinyint(1) DEFAULT NULL,
+  `res` int DEFAULT '0',
+  `clan_name` varchar(255) DEFAULT '',
+  `is_alliance_member` tinyint DEFAULT '0',
+  `roe_group` int DEFAULT '0',
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `configs` (
+  `idconfigs` int NOT NULL AUTO_INCREMENT,
+  `guild` varchar(45) DEFAULT NULL,
+  `setting` varchar(45) DEFAULT NULL,
+  `value` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`idconfigs`),
+  UNIQUE KEY `idconfigs_UNIQUE` (`idconfigs`)
+);
+
+CREATE TABLE `kion` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `event_date` date DEFAULT NULL,
+  `event_time` varchar(45) DEFAULT NULL,
+  `officer_discord_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+)
+
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Wednesday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Wednesday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Wednesday", "10:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Friday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Friday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Friday", "10:00 pm", NULL, "World", 1);
+
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Arena", "Bilefen", "Sunday", "9:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Arena", "Bilefen", "Tuesday", "9:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Arena", "Bilefen", "Thursday", "9:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Arena", "Bilefen", "Saturday", "9:30 pm", NULL, "World", 1);
+
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Tuesday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Tuesday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Tuesday", "10:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Saturday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Saturday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Haunted Carriage", "Ashwold Cemetery", "Saturday", "10:00 pm", NULL, "World", 1);
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Sunday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Monday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Thursday", "12:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Sunday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Monday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Thursday", "8:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Sunday", "10:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Monday", "10:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Demon Gates", "Realm of Damnation", "Thursday", "10:00 pm", NULL, "World", 1);
+
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Monday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Tuesday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Wednesday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Thursday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Friday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Saturday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Sunday", "12:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Monday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Tuesday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Wednesday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Thursday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Friday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Saturday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("The Vault", "Court of Whispers", "Sunday", "7:00 pm", 2, "Shadows", 1);
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Monday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Monday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Monday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Monday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Tuesday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Tuesday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Tuesday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Tuesday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Wednesday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Wednesday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Wednesday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Wednesday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Thursday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Thursday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Thursday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Thursday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Friday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Friday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Friday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Friday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Saturday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Saturday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Saturday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Saturday", "10:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Sunday", "8:00 am", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Sunday", "12:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Sunday", "6:00 pm", 2, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Battleground", "Westmarch", "Sunday", "10:00 pm", 2, "World", 1);
+
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Monday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Tuesday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Wednesday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Thursday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Friday", "7:00 pm", 2, "Shadows", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Assembly", "Court of Whispers", "Saturday", "7:00 pm", 2, "Shadows", 1);
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Monday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Tuesday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Wednesday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Thursday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Friday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Saturday", "12:30 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Sunday", "12:30 pm", NULL, "World", 1);
+
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Monday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Tuesday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Wednesday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Thursday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Friday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Saturday", "9:00 pm", NULL, "World", 1);
+INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Wrathborne Invasion", "World", "Sunday", "9:00 pm", NULL, "World", 1);
