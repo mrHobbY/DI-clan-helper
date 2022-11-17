@@ -17,9 +17,12 @@ When member from server1:role1 joins server2 member autoreceives role2 and name 
 If you have any questions reach out to hobz#8445 on discord
          
 
+## Bot-as-a-service
+https://discord.com/api/oauth2/authorize?client_id=415370939711356928&permissions=8&scope=applications.commands%20bot
 
 
-## Installation and pre-requisites
+
+## Self-hosted Installation and pre-requisites
 
 pip3 install -r requirements.txt
 
