@@ -670,9 +670,6 @@ class CR(commands.Cog):
                         )
                         new_result = await cur.fetchone()
                         clans.append(new_result[3])
-        # DEBUG
-        clans = ["HONOR"]
-        # DEBUG
 
         # Make sure that ctx.author.id is in the list of clans
         pool = await get_db(self.bot)
