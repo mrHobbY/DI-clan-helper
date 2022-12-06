@@ -670,9 +670,6 @@ class CR(commands.Cog):
                         )
                         new_result = await cur.fetchone()
                         clans.append(new_result[3])
-        # DEBUG
-        clans = ["HONOR"]
-        # DEBUG
 
         # Make sure that ctx.author.id is in the list of clans
         pool = await get_db(self.bot)
@@ -688,7 +685,7 @@ class CR(commands.Cog):
                     await ctx.respond(
                         "You can't use this command here. You are not in the clan or correct server"
                     )
-                    # return
+                    return
 
         pool = await get_db(self.bot)
         # filter by input, which can be a class or cr, res, bg
