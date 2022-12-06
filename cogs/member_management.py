@@ -362,6 +362,9 @@ class CR(commands.Cog):
                         name="You have Resonance", value=result[7], inline=False
                     )
                     embed.add_field(
+                        name="Your BG stat", value=result[9], inline=False
+                    )
+                    embed.add_field(
                         name="You are in clan:", value=result[8], inline=False
                     )
                     embed.add_field(
@@ -418,12 +421,18 @@ class CR(commands.Cog):
                         embed.add_field(
                             name="They have Resonance", value=result[7], inline=False
                         )
+                        embed.add_field(
+                            name="They have BG stat", value=result[9], inline=False
+                        )
                     else:
                         embed.add_field(
                             name="They have CR", value="Redacted", inline=False
                         )
                         embed.add_field(
                             name="They have Resonance", value="Redacted", inline=False
+                        )
+                        embed.add_field(
+                            name="They have BG stat", value="Redacted", inline=False
                         )
 
                     embed.add_field(
