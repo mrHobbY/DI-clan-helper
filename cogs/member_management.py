@@ -439,7 +439,7 @@ class CR(commands.Cog):
                     await msg.delete()
 
     @bridge.bridge_command(pass_context=True)
-    async def top(self, ctx, *args):
+    async def top2(self, ctx, *args):
 
         # Depending where we are generate the list of clans to show based on config ALLOW_CLAN_DATA
         pool = await get_db(self.bot)
@@ -648,7 +648,7 @@ class CR(commands.Cog):
             return
 
     @bridge.bridge_command(pass_context=True)
-    async def top2(self, ctx, filter=None):
+    async def top(self, ctx, filter=None):
         '''Display top players based on the predefined filter, like cr, res, class, etc'''
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
