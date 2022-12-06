@@ -1,8 +1,52 @@
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, bridge, pages
 import discord
 import datetime
 import asyncio
 from .utils import *
+
+
+def class_map(cls):
+    ''' We convert any shorthand input into full class name
+    Valid classes "Necromancer" ,"Wizard",  "Hunter","Barbarian","Monk","Crusader"
+    '''
+    cls = cls.lower()
+    if cls in ["necro", "necromancer", "n", "necr"]:
+        return "Necromancer"
+    elif cls in ["wiz", "wizard", 'w', 'mage']:
+        return "Wizard"
+    elif cls in ["hunt", 'hunter', 'h', 'hntr']:
+        return "Hunter"
+    elif cls in ["barb", 'b', 'barbarian', 'barby', 'bb']:
+        return "Barbarian"
+    elif cls in ["m", "monk"]:
+        return "Monk"
+    elif cls in ["crusader", "sader", "c"]:
+        return "Crusader"
+    else:
+        return cls
+
+
+def paginate(text, title):
+    pages = []
+    # go line by line and create new list item every 10 lines
+    current_page = []
+    if len(text.splitlines()) > 10:
+        for line in text.splitlines():
+            if len(current_page) == 10:
+                page_embed = discord.Embed(
+                    title=title,
+                    description="\n".join(current_page),
+                    color=discord.Color.green(),
+                )
+                pages.append(page_embed)
+                current_page = []
+            current_page.append(line)
+    else:
+        page_embed = discord.Embed(
+            title=title, description=text, color=discord.Color.green()
+        )
+        pages.append(page_embed)
+    return pages
 
 
 class CR(commands.Cog):
@@ -14,18 +58,20 @@ class CR(commands.Cog):
         print("CR cog is loaded")
         self.database_update.start()
 
-    @commands.command(pass_context=True)
-    async def cr(self, ctx, *cr):
+    @bridge.bridge_command(pass_context=True)
+    # positional argument for cr which is the number of cr
+    async def cr(self, ctx, cr: int):
+        """ Update your character's CR """
         if not cr:
-            await ctx.send("Enter CR number: !cr 1000")
+            await ctx.respond("Enter CR number: !cr 1000")
             return
         try:
-            cr = int(cr[0])
+            cr = int(cr)
             pass
         except ValueError:
-            await ctx.send("Need a number")
+            await ctx.respond("Need a number")
             return
-        if cr > 0 and cr < 19999:
+        if cr > 0:
             # fetch all from database
 
             name = ctx.author.nick if ctx.author.nick else ctx.author.name
@@ -62,24 +108,30 @@ class CR(commands.Cog):
                             (ctx.author.id, cr, current_time, name, 1),
                         )
                     # react to the message with a checkmark
-                    await ctx.message.add_reaction("✅")
+                    # if bridge slash command is used , then use ctx.respond
+
+                    if ctx.message:
+                        await ctx.message.add_reaction("✅")
+                    else:
+                        await ctx.respond("✅")
 
         else:
-            await ctx.send("Mhm...")
+            await ctx.respond("Mhm...")
             return
 
-    @commands.command(pass_context=True)
-    async def res(self, ctx, *res):
+    @bridge.bridge_command(pass_context=True)
+    async def res(self, ctx, res: int):
+        ''' Update your character's resonance '''
         if not res:
-            await ctx.send("Enter resonance number: !res 1000")
+            await ctx.respond("Enter resonance number: !res 1000")
             return
         try:
-            res = int(res[0])
+            res = int(res)
             pass
         except ValueError:
-            await ctx.send("Need a number")
+            await ctx.respond("Need a number")
             return
-        if res > 0 and res < 9999:
+        if res > 0 and res < 99999:
             # fetch all from database
             name = ctx.author.nick if ctx.author.nick else ctx.author.name
             pool = await get_db(self.bot)
@@ -114,19 +166,80 @@ class CR(commands.Cog):
                             (ctx.author.id, res, current_time, name, 1),
                         )
                     # react to the message with a checkmark
-                    await ctx.message.add_reaction("✅")
+                    # if bridge slash command is used , then use ctx.respond
+                    if ctx.message:
+                        await ctx.message.add_reaction("✅")
+                    else:
+                        await ctx.respond("✅")
 
         else:
-            await ctx.send("Mhm...")
+            await ctx.respond("Mhm...")
             return
 
-    @commands.command(pass_context=True, name="cls", aliases=["class"])
-    async def cls(self, ctx, *cls):
+    @bridge.bridge_command(pass_context=True)
+    async def bg(self, ctx, bg: int):
+        ''' Update your character's battle stats '''
+        if not bg:
+            await ctx.respond("Enter bg score: !bg 10000")
+            return
+        try:
+            bg = int(bg)
+            pass
+        except ValueError:
+            await ctx.respond("Need a number")
+            return
+        if bg > 0 and bg < 99999:
+            # fetch all from database
+            name = ctx.author.nick if ctx.author.nick else ctx.author.name
+            pool = await get_db(self.bot)
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute("select distinct clan_name from DISCORD")
+                    result = await cur.fetchall()
+            # convert results to bracket wrapped list
+            clan_list = []
+            for clan in result:
+                if clan[0] is not None:
+                    clan_list.append(f"[{clan[0]}] ")
+
+            for word in clan_list:
+                name = name.replace(word, "")
+            pool = await get_db(self.bot)
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT * FROM DISCORD WHERE discord_id = %s", (ctx.author.id,)
+                    )
+                    result = await cur.fetchone()
+                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if result:
+                        await cur.execute(
+                            "UPDATE DISCORD SET bg = %s, last_updated = %s WHERE discord_id = %s",
+                            (bg, current_time, ctx.author.id),
+                        )
+                    else:
+                        await cur.execute(
+                            "INSERT INTO DISCORD (discord_id, bg,last_updated,name, IS_CLAN_MEMBER) VALUES (%s, %s, %s,%s, %s)",
+                            (ctx.author.id, bg, current_time, name, 1),
+                        )
+                    # react to the message with a checkmark
+                    # if bridge slash command is used , then use ctx.respond
+                    if ctx.message:
+                        await ctx.message.add_reaction("✅")
+                    else:
+                        await ctx.respond("✅")
+
+        else:
+            await ctx.respond("Mhm...")
+            return
+
+    @bridge.bridge_command(pass_context=True, name="cls", aliases=["class"])
+    async def cls(self, ctx, cls: str):
+        ''' Update your character's class'''
         if not cls:
-            await ctx.send("Enter class: !class hunter")
+            await ctx.respond("Enter class: !class hunter")
             return
-        else:
-            cls = cls[0]
+
         KNOWN_CLASSES = [
             "Necromancer",
             "Wizard",
@@ -136,9 +249,10 @@ class CR(commands.Cog):
             "Crusader",
         ]
 
-        if cls.title() not in KNOWN_CLASSES:
-            await ctx.send("Valid entries are: " + ", ".join(KNOWN_CLASSES))
+        if class_map(cls) not in KNOWN_CLASSES:
+            await ctx.respond("Valid entries are: " + ", ".join(KNOWN_CLASSES))
             return
+        cls = class_map(cls)
         # fetch all from database
         name = ctx.author.nick if ctx.author.nick else ctx.author.name
         pool = await get_db(self.bot)
@@ -174,15 +288,19 @@ class CR(commands.Cog):
                         (ctx.author.id, cls.title(), current_time, name, 1),
                     )
                 # react to the message with a checkmark
-                await ctx.message.add_reaction("✅")
+                # if bridge slash command is used , then use ctx.respond
+                if ctx.message:
+                    await ctx.message.add_reaction("✅")
+                else:
+                    await ctx.respond("✅")
 
-    @commands.command(pass_context=True)
-    async def name(self, ctx, *name):
+    @bridge.bridge_command(pass_context=True)
+    async def name(self, ctx, name: str):
+        ''' Update your discord name to match your character name'''
         if not name:
-            await ctx.send("Enter in-game name: !name hobz")
+            await ctx.respond("Enter in-game name: !name hobz")
             return
-        else:
-            name = name[0]
+
         # fetch all from database
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -205,14 +323,19 @@ class CR(commands.Cog):
                 try:
                     await ctx.author.edit(nick=name)
                 except discord.Forbidden:
-                    await ctx.send(
+                    await ctx.respond(
                         "I don't have permission to change your nickname. My role needs to be above yours."
                     )
                 # react to the message with a checkmark
-                await ctx.message.add_reaction("✅")
+                # if bridge slash command is used , then use ctx.respond
+                if ctx.message:
+                    await ctx.message.add_reaction("✅")
+                else:
+                    await ctx.respond("✅")
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def whoami(self, ctx):
+        """ Get your character's info"""
         # fetch all from database
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -245,19 +368,18 @@ class CR(commands.Cog):
                         name="You last updated your CR", value=result[4], inline=False,
                     )
 
-                    await ctx.send(embed=embed)
+                    await ctx.respond(embed=embed)
                 else:
-                    await ctx.send(
+                    await ctx.respond(
                         "You are not registered. Use any of !cr !name or !class commands to register"
                     )
 
-    @commands.command(pass_context=True)
-    async def whois(self, ctx, *in_game_name):
+    @bridge.bridge_command(pass_context=True)
+    async def whois(self, ctx, in_game_name: str):
+        """ Find information about any character"""
         if not in_game_name:
-            await ctx.send("Enter in-game name: !whois hobz")
+            await ctx.respond("Enter in-game name: !whois hobz")
             return
-        else:
-            in_game_name = in_game_name[0]
 
         # fetch author's clan from database
         pool = await get_db(self.bot)
@@ -310,13 +432,13 @@ class CR(commands.Cog):
                     embed.add_field(
                         name="Last updated", value=result[4], inline=False,
                     )
-                    await ctx.send(embed=embed)
+                    await ctx.respond(embed=embed)
                 else:
-                    msg = await ctx.send("No user found")
+                    msg = await ctx.respond("No user found")
                     await asyncio.sleep(5)
                     await msg.delete()
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def top(self, ctx, *args):
 
         # Depending where we are generate the list of clans to show based on config ALLOW_CLAN_DATA
@@ -352,14 +474,13 @@ class CR(commands.Cog):
                 result = await cur.fetchone()
                 if not result:
                     # You can't use this command here. You are not in a clan that allows this
-                    await ctx.send(
+                    await ctx.respond(
                         "You can't use this command here. You are not in the clan or correct server"
                     )
                     return
 
         pool = await get_db(self.bot)
         if not args:
-
             async with pool.acquire() as conn:
                 async with conn.cursor() as cur:
                     # clan_name in (clans)
@@ -379,7 +500,7 @@ class CR(commands.Cog):
                     elif len(clans) > 1:
                         for i, row in enumerate(result):
                             message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]} - {row[8]}\n"
-                    await ctx.send(message)
+                    await ctx.respond(message)
         # elif get top n with class
         elif len(args) == 1:
             try:
@@ -412,7 +533,7 @@ class CR(commands.Cog):
                                     top10_by_class.append(row)
                                     message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]} - {row[8]}\n"
                             if len(message) > 0:
-                                await ctx.send(message)
+                                await ctx.respond(message)
                             return
                 elif args[0] == "res":
                     message = f"Top 10 Resonance Res \n"
@@ -437,11 +558,11 @@ class CR(commands.Cog):
                                     top10_by_resonance.append(row)
                                     message += f"{i + 1}. {row[1]} - {row[2]} - {row[7]} - {row[8]}\n"
                             if len(message) > 0:
-                                await ctx.send(message)
+                                await ctx.respond(message)
                             return
 
                 else:
-                    await ctx.send(
+                    await ctx.respond(
                         "Don't know what you want. Did you try full name of class?"
                     )
                     return
@@ -460,25 +581,25 @@ class CR(commands.Cog):
                             for i, row in enumerate(result):
                                 message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]}\n"
                                 if len(message) > 1700:
-                                    await ctx.send(message)
+                                    await ctx.respond(message)
                                     message = ""
                         elif len(clans) > 1:
                             for i, row in enumerate(result):
                                 message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]} - {row[8]}\n"
                                 if len(message) > 1700:
-                                    await ctx.send(message)
+                                    await ctx.respond(message)
                                     message = ""
                         if len(message) > 0:
-                            await ctx.send(message)
+                            await ctx.respond(message)
             else:
-                await ctx.send("Tell me a number between 1 and 100")
+                await ctx.respond("Tell me a number between 1 and 100")
                 return
         # elif show only specific class with top n
         elif len(args) == 2:
             try:
                 n = int(args[1])
             except ValueError:
-                await ctx.send("Need a number")
+                await ctx.respond("Need a number")
                 return
             if n > 0 and n < 301:
                 if args[0].title() in [
@@ -505,26 +626,255 @@ class CR(commands.Cog):
                                     top_n_by_class.append(row)
                                     message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]}\n"
                                     if len(message) > 1700:
-                                        await ctx.send(message)
+                                        await ctx.respond(message)
                                         message = ""
                             elif len(clans) > 1:
                                 for i, row in enumerate(result):
                                     top_n_by_class.append(row)
                                     message += f"{i + 1}. {row[1]} - {row[2]} - {row[3]}/{row[7]} - {row[8]}\n"
                                     if len(message) > 1700:
-                                        await ctx.send(message)
+                                        await ctx.respond(message)
                                         message = ""
-                    await ctx.send(message)
+                    await ctx.respond(message)
 
                 else:
-                    await ctx.send("Need a full class name")
+                    await ctx.respond("Need a full class name")
                     return
             else:
-                await ctx.send("Tell me a number between 1 and 100")
+                await ctx.respond("Tell me a number between 1 and 100")
                 return
         else:
-            await ctx.send("Not sure what you want to do...")
+            await ctx.respond("Not sure what you want to do...")
             return
+
+    @bridge.bridge_command(pass_context=True)
+    async def top2(self, ctx, filter=None):
+        '''Display top players based on the predefined filter, like cr, res, class, etc'''
+        pool = await get_db(self.bot)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    "SELECT * FROM configs WHERE value = %s and setting = %s",
+                    (ctx.guild.id, "ALLOW_CLAN_DATA"),
+                )
+                result = await cur.fetchall()
+            clans = []
+            for server in result:
+                # Get Server clan_name based server[2] value
+                pool = await get_db(self.bot)
+                async with pool.acquire() as conn:
+                    async with conn.cursor() as cur:
+                        await cur.execute(
+                            "SELECT * FROM configs WHERE guild = %s and setting = %s",
+                            (server[1], "GUILD_NAME"),
+                        )
+                        new_result = await cur.fetchone()
+                        clans.append(new_result[3])
+        # DEBUG
+        clans = ["HONOR"]
+        # DEBUG
+
+        # Make sure that ctx.author.id is in the list of clans
+        pool = await get_db(self.bot)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    "SELECT * FROM DISCORD WHERE discord_id = %s AND clan_name in %s",
+                    (ctx.author.id, tuple(clans),),
+                )
+                result = await cur.fetchone()
+                if not result:
+                    # You can't use this command here. You are not in a clan that allows this
+                    await ctx.respond(
+                        "You can't use this command here. You are not in the clan or correct server"
+                    )
+                    # return
+
+        pool = await get_db(self.bot)
+        # filter by input, which can be a class or cr, res, bg
+        if not filter or filter == "cr":
+            # show all based on CR
+            message = ""
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT * FROM DISCORD WHERE is_clan_member = 1 AND clan_name in %s ORDER BY cr DESC",
+                        (tuple(clans),),
+                    )
+                    result = await cur.fetchall()
+                    if len(clans) == 1:
+                        for i, row in enumerate(result):
+                            class_msg = cr_msg = res_msg = bg_msg = ""
+                            if row[2]:
+                                class_msg = f"*{row[2]}* "
+                            if row[3]:
+                                cr_msg = f"***CR*** {row[3]} "
+                            if row[7]:
+                                res_msg = f"***Res*** {row[7]} "
+                            if row[9]:
+                                bg_msg = f"***BG*** {row[9]} "
+                            message += f"{i + 1}. **{row[1]}** {class_msg}{cr_msg}{res_msg}{bg_msg}\n"
+
+                        page_buttons = [
+                            pages.PaginatorButton(
+                                "first", emoji="⏪"
+                            ),
+                            pages.PaginatorButton("prev", emoji="⬅"),
+                            pages.PaginatorButton(
+                                "page_indicator", style=discord.ButtonStyle.gray, disabled=True
+                            ),
+                            pages.PaginatorButton("next", emoji="➡"),
+                            pages.PaginatorButton("last", emoji="⏩"),
+                        ]
+                        paginator = pages.Paginator(
+                            pages=paginate(message, "Top players by CR"),
+                            show_disabled=True,
+                            show_indicator=True,
+                            use_default_buttons=False,
+                            custom_buttons=page_buttons,
+                            loop_pages=True,
+                            timeout=60,
+                        )
+                        await paginator.respond(ctx)
+        #  elif res, reso, resonance, r
+        elif filter == "res" or filter == "reso" or filter == "resonance" or filter == "r":
+            message = ""
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT * FROM DISCORD WHERE is_clan_member = 1 AND clan_name in %s ORDER BY res DESC",
+                        (tuple(clans),),
+                    )
+                    result = await cur.fetchall()
+                    if len(clans) == 1:
+                        for i, row in enumerate(result):
+                            class_msg = cr_msg = res_msg = bg_msg = ""
+                            if row[2]:
+                                class_msg = f"*{row[2]}* "
+                            if row[3]:
+                                cr_msg = f"***CR*** {row[3]} "
+                            if row[7]:
+                                res_msg = f"***Res*** {row[7]} "
+                            if row[9]:
+                                bg_msg = f"***BG*** {row[9]} "
+                            message += f"{i + 1}. **{row[1]}** {class_msg}{cr_msg}{res_msg}{bg_msg}\n"
+
+                        page_buttons = [
+                            pages.PaginatorButton(
+                                "first", emoji="⏪"
+                            ),
+                            pages.PaginatorButton("prev", emoji="⬅"),
+                            pages.PaginatorButton(
+                                "page_indicator", style=discord.ButtonStyle.gray, disabled=True
+                            ),
+                            pages.PaginatorButton("next", emoji="➡"),
+                            pages.PaginatorButton("last", emoji="⏩"),
+                        ]
+                        paginator = pages.Paginator(
+                            pages=paginate(message, "Top players by Res"),
+                            show_disabled=True,
+                            show_indicator=True,
+                            use_default_buttons=False,
+                            custom_buttons=page_buttons,
+                            loop_pages=True,
+                            timeout=60,
+                        )
+                        await paginator.respond(ctx)
+        #  elif bg, battle, battleground, b
+        elif filter == "bg" or filter == "battle" or filter == "battleground" or filter == "b":
+            message = ""
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT * FROM DISCORD WHERE is_clan_member = 1 AND clan_name in %s ORDER BY bg DESC",
+                        (tuple(clans),),
+                    )
+                    result = await cur.fetchall()
+                    if len(clans) == 1:
+                        for i, row in enumerate(result):
+                            class_msg = cr_msg = res_msg = bg_msg = ""
+                            if row[2]:
+                                class_msg = f"*{row[2]}* "
+                            if row[3]:
+                                cr_msg = f"***CR*** {row[3]} "
+                            if row[7]:
+                                res_msg = f"***Res*** {row[7]} "
+                            if row[9]:
+                                bg_msg = f"***BG*** {row[9]} "
+                            message += f"{i + 1}. **{row[1]}** {class_msg}{cr_msg}{res_msg}{bg_msg}\n"
+
+                        page_buttons = [
+                            pages.PaginatorButton(
+                                "first", emoji="⏪"
+                            ),
+                            pages.PaginatorButton("prev", emoji="⬅"),
+                            pages.PaginatorButton(
+                                "page_indicator", style=discord.ButtonStyle.gray, disabled=True
+                            ),
+                            pages.PaginatorButton("next", emoji="➡"),
+                            pages.PaginatorButton("last", emoji="⏩"),
+                        ]
+                        paginator = pages.Paginator(
+                            pages=paginate(message, "Top players by BG"),
+                            show_disabled=True,
+                            show_indicator=True,
+                            use_default_buttons=False,
+                            custom_buttons=page_buttons,
+                            loop_pages=True,
+                            timeout=60,
+                        )
+                        await paginator.respond(ctx)
+        # filter by class
+        elif class_map(filter) in ["Necromancer",
+                                   "Wizard",
+                                   "Hunter",
+                                   "Barbarian",
+                                   "Monk",
+                                   "Crusader"]:
+
+            filter = class_map(filter)
+            message = ""
+            async with pool.acquire() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        "SELECT * FROM DISCORD WHERE class = %s AND is_clan_member = 1 AND clan_name in %s ORDER BY cr DESC",
+                        (filter.title(), tuple(clans)),
+                    )
+                    result = await cur.fetchall()
+                    if len(clans) == 1:
+                        for i, row in enumerate(result):
+                            class_msg = cr_msg = res_msg = bg_msg = ""
+                            if row[2]:
+                                class_msg = f"*{row[2]}* "
+                            if row[3]:
+                                cr_msg = f"***CR*** {row[3]} "
+                            if row[7]:
+                                res_msg = f"***Res*** {row[7]} "
+                            if row[9]:
+                                bg_msg = f"***BG*** {row[9]} "
+                            message += f"{i + 1}. **{row[1]}** {class_msg}{cr_msg}{res_msg}{bg_msg}\n"
+
+                        page_buttons = [
+                            pages.PaginatorButton(
+                                "first", emoji="⏪"
+                            ),
+                            pages.PaginatorButton("prev", emoji="⬅"),
+                            pages.PaginatorButton(
+                                "page_indicator", style=discord.ButtonStyle.gray, disabled=True
+                            ),
+                            pages.PaginatorButton("next", emoji="➡"),
+                            pages.PaginatorButton("last", emoji="⏩"),
+                        ]
+                        paginator = pages.Paginator(
+                            pages=paginate(message, f"Top {filter.title()} players by CR"),
+                            show_disabled=True,
+                            show_indicator=True,
+                            use_default_buttons=False,
+                            custom_buttons=page_buttons,
+                            loop_pages=True,
+                            timeout=60,
+                        )
+                        await paginator.respond(ctx)
 
     # Add member to db on join
     @commands.Cog.listener()
@@ -591,9 +941,9 @@ class CR(commands.Cog):
                                 )
                                 result = await cur.fetchone()
                                 if (
-                                    result
-                                    and result[6] == 1
-                                    and result[8] == config["GUILD_NAME"]
+                                        result
+                                        and result[6] == 1
+                                        and result[8] == config["GUILD_NAME"]
                                 ):
                                     # If user in DB and Role matches DB, do nothing
                                     pass

@@ -1,5 +1,6 @@
 import discord
 from discord.ext.commands import Cog
+from discord.ext import bridge
 from discord.ui import Button, View
 import datetime
 from dateutil import parser
@@ -186,8 +187,8 @@ class Kion(Cog):
     async def on_ready(self):
         print("Kion cog is loaded")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def createkion(self, ctx, date, *times):
         try:
             proper_date = standardize_date(date)
@@ -244,8 +245,8 @@ class Kion(Cog):
                             await ctx.send(f"Kion already exist on {date} at {time}")
                             pass
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def nokion(self, ctx, date):
         try:
             proper_date = standardize_date(date)
@@ -287,8 +288,8 @@ class Kion(Cog):
                     )
                     await ctx.send(f"All Kions removed on {date}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def showkions(self, ctx):
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -311,8 +312,8 @@ class Kion(Cog):
                     message += "```"
                     await ctx.send(message)
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def showkion(self, ctx, date=None):
         if not date:
             await ctx.send(f"Please specify a date")
@@ -429,8 +430,8 @@ class Kion(Cog):
                     await ctx.send(f"Kions on {date}", view=view)
                     await view.wait()
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def mykion(self, ctx):
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -453,8 +454,8 @@ class Kion(Cog):
                     message += "```"
                     await ctx.send(message)
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def notme(self, ctx, date=None):
         # updates database for spefic date with discord_officer_id = NULL, so that it can be assigned to someone else
         # if date is not specified, it will update all kions for the user
@@ -494,8 +495,8 @@ class Kion(Cog):
                     # add checkmark reaction
                     await ctx.message.add_reaction("✅")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def postkion(self, ctx, date=None):
         if date is None:
             await ctx.send("Please specify a date")

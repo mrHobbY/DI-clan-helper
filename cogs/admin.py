@@ -1,4 +1,4 @@
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, bridge
 import discord
 from .utils import *
 
@@ -47,7 +47,7 @@ class Admin(commands.Cog):
         elif role_type == int:
             role_id = role
         else:
-            await ctx.send("Pass role_id or @role")
+            await ctx.respond("Pass role_id or @role")
             return
         # get role name by id
         role_name = ctx.guild.get_role(role_id).name
@@ -77,7 +77,7 @@ class Admin(commands.Cog):
                     )
 
         await ctx.message.add_reaction("✅")
-        await ctx.send(f"Home role set to {role_name}")
+        await ctx.respond(f"Home role set to {role_name}")
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
@@ -90,13 +90,13 @@ class Admin(commands.Cog):
                 await cur.execute("SELECT * FROM configs WHERE guild = %s", (guild_id,))
                 configs = await cur.fetchall()
         for config in configs:
-            await ctx.send(f"{config[1]}: {config[2]}")
+            await ctx.respond(f"{config[1]}: {config[2]}")
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
     async def set_event_channel(self, ctx, channel: discord.TextChannel = None):
         if not channel:
-            await ctx.send("Usage: !set_event_channel #channel")
+            await ctx.respond("Usage: !set_event_channel #channel")
             return
         # write config to db
         pool = await get_db(self.bot)
@@ -121,13 +121,13 @@ class Admin(commands.Cog):
                         (ctx.guild.id, "EVENT_ANNOUNCE_CHANNEL", channel.id),
                     )
 
-                await ctx.send(f"Event channel set to {channel.mention}")
+                await ctx.respond(f"Event channel set to {channel.mention}")
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
     async def set_kion_channel(self, ctx, channel: discord.TextChannel = None):
         if not channel:
-            await ctx.send("Usage: !set_kion_channel #channel")
+            await ctx.respond("Usage: !set_kion_channel #channel")
             return
         # write config to db
         pool = await get_db(self.bot)
@@ -152,14 +152,14 @@ class Admin(commands.Cog):
                         (ctx.guild.id, "KION_CHANNEL", channel.id),
                     )
 
-                await ctx.send(f"Kion channel set to {channel.mention}")
+                await ctx.respond(f"Kion channel set to {channel.mention}")
 
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
     async def set_timer_channel(self, ctx, channel: discord.VoiceChannel = None):
         if not channel:
-            await ctx.send("Usage: !set_time_channel #channel")
+            await ctx.respond("Usage: !set_time_channel #channel")
             return
         # write config to db
         pool = await get_db(self.bot)
@@ -184,7 +184,7 @@ class Admin(commands.Cog):
                         (ctx.guild.id, "TIME_CHANNEL", channel.id),
                     )
 
-                await ctx.send(f"Time channel set to {channel.mention}")
+                await ctx.respond(f"Time channel set to {channel.mention}")
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
@@ -194,10 +194,10 @@ class Admin(commands.Cog):
         try:
             server = self.bot.get_guild(int(server_id))
             if not server:
-                await ctx.send("I'm not aware of that server")
+                await ctx.respond("I'm not aware of that server")
                 return
         except Exception as e:
-            await ctx.send("Something is off. {e}")
+            await ctx.respond("Something is off. {e}")
             return
 
         # Get discord id from the author and insert into configs with ALLOW_CLAN_DATA
@@ -224,7 +224,7 @@ class Admin(commands.Cog):
                         (ctx.guild.id, "ALLOW_CLAN_DATA", server_id),
                     )
 
-                await ctx.send(f"Clan data allowed for server {server_id}")
+                await ctx.respond(f"Clan data allowed for server {server_id}")
 
     @commands.command(pass_context=True)
     @commands.has_permissions(administrator=True)
@@ -243,7 +243,7 @@ class Admin(commands.Cog):
                     for server in result:
                         # convert server[2] to guild name and show
                         guild = self.bot.get_guild(int(server[3]))
-                        await ctx.send(
+                        await ctx.respond(
                             f"Clan data allowed for server {guild.name} with ID {server[3]}. To disable, use !disable_clan_data {server[3]}"
                         )
         else:
@@ -263,9 +263,9 @@ class Admin(commands.Cog):
                                 "DELETE FROM configs WHERE guild = %s AND setting = %s AND value = %s",
                                 (ctx.guild.id, "ALLOW_CLAN_DATA", server_id),
                             )
-                            await ctx.send(f"Clan data disabled for server {server_id}")
+                            await ctx.respond(f"Clan data disabled for server {server_id}")
                             return
-                    await ctx.send(f"Clan data not enabled for server {server_id}")
+                    await ctx.respond(f"Clan data not enabled for server {server_id}")
 
 
 def setup(bot):

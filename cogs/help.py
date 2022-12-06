@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, bridge
 
 
 class Help(commands.Cog):
@@ -11,7 +11,7 @@ class Help(commands.Cog):
         print("Help cog is loaded")
 
     # overwritten default help command for better text formatting
-    @commands.command()
+    @bridge.bridge_command()
     async def help(self, ctx):
         embed = discord.Embed(color=discord.Color.red())
         embed.set_author(name="hobz#8445")
@@ -22,6 +22,7 @@ class Help(commands.Cog):
             name="!res number", value="• Update your current Resonance", inline=False
         )
         embed.add_field(name="!class hunter", value="• Update your class", inline=False)
+        embed.add_field(name="!bg number", value="• Update you BG stats", inline=False)
         embed.add_field(
             name="!name name",
             value="• Update your in game name and Discord name",
@@ -40,8 +41,8 @@ class Help(commands.Cog):
             inline=False,
         )
         embed.add_field(
-            name="!top [class] [number]",
-            value="• Get the top [class] [number] of players !top , !top 4, !top hunter 5",
+            name="!top [filter] ]",
+            value="• Get the list of players !top , !top res, !top hunter",
             inline=False,
         )
         # embed.add_field(
@@ -65,10 +66,10 @@ class Help(commands.Cog):
             inline=False,
         )
 
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
-    @commands.command()
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command()
+    @bridge.has_permissions(manage_roles=True)
     async def admin_help(self, ctx):
         embed = discord.Embed(color=discord.Color.red())
         embed.set_author(name="Admin only commands")
@@ -158,7 +159,7 @@ class Help(commands.Cog):
             value="• !notme [date]# Remove yourself from a scheduled run on target date or all dates if date is not speficied",
             inline=False,
         )
-        await ctx.send(embed=embed)
+        await ctx.respond(embed=embed)
 
 
 def setup(bot):

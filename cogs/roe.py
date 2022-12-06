@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, bridge
 from discord.ext.commands import Cog
 
 from .utils import *
@@ -20,15 +20,15 @@ class Roe(Cog):
     async def on_ready(self):
         print("ROE cog is loaded")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(manage_roles=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(manage_roles=True)
     async def roe(self, ctx, action, member: discord.Member, group: int = 0):
         pool = await get_db(self.bot)
         if group > 10 or group < 0:
-            await ctx.send("Groups can be 0-10")
+            await ctx.respond("Groups can be 0-10")
             return
         if not member:
-            await ctx.send("Please mention a member. Example: !roe add @Fooz 8")
+            await ctx.respond("Please mention a member. Example: !roe add @Fooz 8")
             return
         if action == "add":
             async with pool.acquire() as conn:
@@ -55,13 +55,13 @@ class Roe(Cog):
                     )
                     await ctx.message.add_reaction("✅")
         else:
-            await ctx.send("!roe add|update|delete @member group")
+            await ctx.respond("!roe add|update|delete @member group")
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def whogroup(self, ctx, group: int):
         pool = await get_db(self.bot)
         if group > 10 or group < 0:
-            await ctx.send("Groups can be 0-10")
+            await ctx.respond("Groups can be 0-10")
             return
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -73,11 +73,11 @@ class Roe(Cog):
                     for member in members:
                         message += f"{member[1]:<16} {member[2]:<11} {member[3]:<4}/{member[7]:<4} {member[8]:<5}\n"
                     message += "```"
-                    await ctx.send(message)
+                    await ctx.respond(message)
                 else:
-                    await ctx.send("No members in that group")
+                    await ctx.respond("No members in that group")
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def mygroup(self, ctx):
 
         pool = await get_db(self.bot)
@@ -89,11 +89,11 @@ class Roe(Cog):
                 )
                 member = await cur.fetchone()
                 if member and member[10] != 0:
-                    await ctx.send(f"You are in group {member[10]}")
+                    await ctx.respond(f"You are in group {member[10]}")
                 else:
-                    await ctx.send("You are not in any group")
+                    await ctx.respond("You are not in any group")
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     async def roegroups(self, ctx):
 
         pool = await get_db(self.bot)
@@ -121,8 +121,8 @@ class Roe(Cog):
                 # split in chunk starting with "Group 1" and ending with "Group 5"
                 mes = message.partition("Group 6")
 
-                await ctx.send(f"```\n{mes[0]}\n```")
-                await ctx.send(f"```\n{mes[1]}{mes[2]}\n```")
+                await ctx.respond(f"```\n{mes[0]}\n```")
+                await ctx.respond(f"```\n{mes[1]}{mes[2]}\n```")
 
 
 def setup(bot):

@@ -1,4 +1,4 @@
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, bridge
 import discord
 from collections import defaultdict
 from .utils import *
@@ -249,7 +249,7 @@ class RoleSync(commands.Cog):
 
             # print(f"======= Finished sync for {target_guild.name} =======")
 
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     @commands.is_owner()
     async def add_sync(
         self,
@@ -268,7 +268,7 @@ class RoleSync(commands.Cog):
             or not target_guild_role
             or not prefix
         ):
-            await ctx.send("Missing arguments")
+            await ctx.respond("Missing arguments")
             return
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -282,7 +282,7 @@ class RoleSync(commands.Cog):
                 )
                 result = await cur.fetchall()
                 if result:
-                    await ctx.send(f"Config already exists")
+                    await ctx.respond(f"Config already exists")
                     return
                 await cur.execute(
                     "INSERT INTO configs (setting, guild, value) VALUES (%s, %s, %s)",
@@ -293,10 +293,10 @@ class RoleSync(commands.Cog):
                     ),
                 )
                 await conn.commit()
-                await ctx.send(f"Added config")
+                await ctx.respond(f"Added config")
 
     # command to list all guilds
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     @commands.is_owner()
     async def list_guilds(self, ctx):
         """List all guilds"""
@@ -305,26 +305,26 @@ class RoleSync(commands.Cog):
         for guild in guilds:
             output += f"{guild.name} - {guild.id}\n"
         # send dm to author
-        await ctx.author.send(output)
+        await ctx.author.respond(output)
 
     # command to list all roles in a guild
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     @commands.is_owner()
     async def list_roles(self, ctx, guild_id):
         """List all roles in a guild"""
         guild = self.bot.get_guild(int(guild_id))
         if not guild:
-            await ctx.send("Guild not found")
+            await ctx.respond("Guild not found")
             return
         roles = guild.roles
         output = ""
         for role in roles:
             output += f"{role.name} - {role.id}\n"
         # send dm to author
-        await ctx.author.send(output)
+        await ctx.author.respond(output)
 
     # Get current sync configs
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     @commands.is_owner()
     async def get_sync_configs(self, ctx):
         """Get current sync configs"""
@@ -334,7 +334,7 @@ class RoleSync(commands.Cog):
                 await cur.execute("SELECT * FROM configs WHERE setting = 'ROLE_SYNC'")
                 result = await cur.fetchall()
                 if not result:
-                    await ctx.send(f"No configs found")
+                    await ctx.respond(f"No configs found")
                     return
                 output = ""
                 for config in result:
@@ -355,12 +355,12 @@ class RoleSync(commands.Cog):
                     ).get_role(int(config_parts[2]))
                     # for config[3][3] get prefix
                     # send message to author
-                    await ctx.author.send(
+                    await ctx.author.respond(
                         f"Syncing to {target_guild_name} from {source_guild_name} the source role {source_guild_role_name} and applying {target_guild_role_name} with prefix {config_parts[3]}\n"
                     )
 
     # add sync config
-    @commands.command(pass_context=True)
+    @bridge.bridge_command(pass_context=True)
     @commands.is_owner()
     async def add_sync_config(
         self,
@@ -379,7 +379,7 @@ class RoleSync(commands.Cog):
             or not target_guild_role_id
             or not prefix
         ):
-            await ctx.send(
+            await ctx.respond(
                 "target_guild_id, source_guild_id, source_guild_role_id, target_guild_role_id, prefix"
             )
             return
@@ -395,7 +395,7 @@ class RoleSync(commands.Cog):
                 )
                 result = await cur.fetchall()
                 if result:
-                    await ctx.send(f"Config already exists")
+                    await ctx.respond(f"Config already exists")
                     return
                 # source_guild_id:source_guild_role:target_guild_role:prefix
                 await cur.execute(
@@ -407,7 +407,7 @@ class RoleSync(commands.Cog):
                     ),
                 )
                 await conn.commit()
-                await ctx.send(f"Added config")
+                await ctx.respond(f"Added config")
 
 
 def setup(bot):
