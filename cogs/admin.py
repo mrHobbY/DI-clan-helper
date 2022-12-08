@@ -11,8 +11,8 @@ class Admin(commands.Cog):
     async def on_ready(self):
         print("Admin cog is loaded")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def set_guild_name(self, ctx, name):
         guild_id = ctx.guild.id
         guild_name = name
@@ -27,18 +27,18 @@ class Admin(commands.Cog):
                 guild_exists = await cur.fetchone()
                 if guild_exists:
                     await cur.execute(
-                        "UPDATE guild SET value = %s WHERE guild = %s AND setting = 'GUILD_NAME'",
+                        "UPDATE configs SET value = %s WHERE guild = %s AND setting = 'GUILD_NAME'",
                         (guild_name, guild_id),
                     )
                 else:
                     await cur.execute(
-                        "INSERT INTO guild (guild, setting, value) VALUES (%s, 'GUILD_NAME', %s)",
+                        "INSERT INTO configs (guild, setting, value) VALUES (%s, %s, %s)",
                         (guild_id, guild_name),
                     )
         await ctx.message.add_reaction("✅")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def set_home_role(self, ctx, role):
         guild_id = ctx.guild.id
         role_type = type(role)
@@ -62,25 +62,25 @@ class Admin(commands.Cog):
                 guild_exists = await cur.fetchone()
                 if guild_exists:
                     await cur.execute(
-                        "UPDATE guild SET value = %s WHERE guild = %s AND setting = 'GUILD_HOME_ROLE'",
+                        "UPDATE configs SET value = %s WHERE guild = %s AND setting = 'GUILD_HOME_ROLE'",
                         (role, guild_id),
                     )
                 else:
                     await cur.execute(
-                        "INSERT INTO guild (guild, setting, value) VALUES (%s, 'GUILD_HOME_ROLE', %s)",
+                        "INSERT INTO configs (guild, setting, value) VALUES (%s, 'GUILD_HOME_ROLE', %s)",
                         (guild_id, role),
                     )
                     # also insert ALLOW_CLAN_DATA
                     await cur.execute(
-                        "INSERT INTO guild (guild, setting, value) VALUES (%s, 'ALLOW_CLAN_DATA', %s)",
+                        "INSERT INTO configs (guild, setting, value) VALUES (%s, 'ALLOW_CLAN_DATA', %s)",
                         (guild_id, guild_id),
                     )
 
         await ctx.message.add_reaction("✅")
         await ctx.respond(f"Home role set to {role_name}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def show_configs(self, ctx):
         guild_id = ctx.guild.id
         pool = await get_db(self.bot)
@@ -92,8 +92,8 @@ class Admin(commands.Cog):
         for config in configs:
             await ctx.respond(f"{config[1]}: {config[2]}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def set_event_channel(self, ctx, channel: discord.TextChannel = None):
         if not channel:
             await ctx.respond("Usage: !set_event_channel #channel")
@@ -123,8 +123,8 @@ class Admin(commands.Cog):
 
                 await ctx.respond(f"Event channel set to {channel.mention}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def set_kion_channel(self, ctx, channel: discord.TextChannel = None):
         if not channel:
             await ctx.respond("Usage: !set_kion_channel #channel")
@@ -155,8 +155,8 @@ class Admin(commands.Cog):
                 await ctx.respond(f"Kion channel set to {channel.mention}")
 
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def set_timer_channel(self, ctx, channel: discord.VoiceChannel = None):
         if not channel:
             await ctx.respond("Usage: !set_time_channel #channel")
@@ -186,8 +186,8 @@ class Admin(commands.Cog):
 
                 await ctx.respond(f"Time channel set to {channel.mention}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def allow_clan_data(self, ctx, server_id):
 
         # check that server_id is a valid server and bot is there
@@ -226,8 +226,8 @@ class Admin(commands.Cog):
 
                 await ctx.respond(f"Clan data allowed for server {server_id}")
 
-    @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
+    @bridge.bridge_command(pass_context=True)
+    @bridge.has_permissions(administrator=True)
     async def disable_clan_data(self, ctx, server_id=None):
         if not server_id:
             # show current configs from ALLOW_CLAN_DATA
