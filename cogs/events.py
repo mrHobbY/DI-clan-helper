@@ -71,7 +71,7 @@ class Events(commands.Cog):
 
                     for event_details in events:
                         if event_details[1] == event:
-                            time_string = f"{now} {event_details[4]} -0400"
+                            time_string = f"{now} {event_details[4]} -0500"
                             my_date = datetime.datetime.strptime(
                                 time_string, time_format
                             )
@@ -150,7 +150,7 @@ class Events(commands.Cog):
                 for event_details in events:
                     now = datetime.datetime.now(tz).strftime("%m/%d/%Y")
                     time_format = "%m/%d/%Y %I:%M %p %z"
-                    time_string = f"{now} {event_details[4]} -0400"
+                    time_string = f"{now} {event_details[4]} -0500"
                     event_start_est = datetime.datetime.strptime(
                         time_string, time_format
                     )
