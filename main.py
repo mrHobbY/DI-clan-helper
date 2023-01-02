@@ -28,7 +28,13 @@ class Bot(bridge.Bot):
 
 bot = Bot()
 
-
+@bot.event
+async def on_command(ctx):
+    # if message in DMS
+    if ctx.guild is None:
+        print(f"> LOGGER: Command '{ctx.command.name}' executed by {ctx.author} in DMs.")
+    else:
+        print(f"> LOGGER: Command '{ctx.command.name}' executed by {ctx.author} in guild '{ctx.guild}' ({ctx.guild.id}).")
 def main():
     bot.remove_command("help")
     for filename in os.listdir("./cogs"):
