@@ -480,7 +480,7 @@ class CR(commands.Cog):
                     (ctx.author.id, tuple(clans),),
                 )
                 result = await cur.fetchone()
-                if not result:
+                if not result and ctx.author.id != int(os.getenv("OWNER_DISCORD_ID")):
                     # You can't use this command here. You are not in a clan that allows this
                     await ctx.respond(
                         "You can't use this command here. You are not in the clan or correct server"
@@ -543,7 +543,7 @@ class CR(commands.Cog):
                         (tuple(clans),),
                     )
                     result = await cur.fetchall()
-                    if len(clans) == 1:
+                    if len(clans) >= 1:
                         for i, row in enumerate(result):
                             class_msg = cr_msg = res_msg = bg_msg = ""
                             if row[2]:
@@ -587,7 +587,7 @@ class CR(commands.Cog):
                         (tuple(clans),),
                     )
                     result = await cur.fetchall()
-                    if len(clans) == 1:
+                    if len(clans) >= 1:
                         for i, row in enumerate(result):
                             class_msg = cr_msg = res_msg = bg_msg = ""
                             if row[2]:
@@ -638,7 +638,7 @@ class CR(commands.Cog):
                         (filter.title(), tuple(clans)),
                     )
                     result = await cur.fetchall()
-                    if len(clans) == 1:
+                    if len(clans) >= 1:
                         for i, row in enumerate(result):
                             class_msg = cr_msg = res_msg = bg_msg = ""
                             if row[2]:
