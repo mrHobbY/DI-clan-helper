@@ -191,8 +191,10 @@ class RoleSync(commands.Cog):
                             f"Changing {target_member_name} to [{prefix}] {source_member_name} in {target_guild.name}"
                         )
                         try:
+                            nick = f"[{prefix}] {source_member_name}"
                             await target_member.edit(
-                                nick=f"[{prefix}] {source_member_name}"
+                                # trim to 32 characters to avoid discord name length limit
+                                nick=nick[:32],
                             )
                         except discord.Forbidden:
                             print(
