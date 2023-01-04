@@ -457,7 +457,7 @@ class CR(commands.Cog):
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(
-                    "SELECT * FROM configs WHERE value = %s and setting = %s",
+                    "SELECT * FROM configs WHERE guild = %s and setting = %s",
                     (ctx.guild.id, "GUILD_NAME"),
                 )
                 result = await cur.fetchone()
