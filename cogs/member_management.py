@@ -450,6 +450,21 @@ class CR(commands.Cog):
     @bridge.bridge_command(pass_context=True)
     async def top(self, ctx, filter=None):
         '''Display top players based on the predefined filter, like cr, res, class, etc'''
+
+        clans = []
+        # First we always allow self to be displayed
+        pool = await get_db(self.bot)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    "SELECT * FROM configs WHERE value = %s and setting = %s",
+                    (ctx.guild.id, "GUILD_NAME"),
+                )
+                result = await cur.fetchone()
+                if result:
+                    clans.append(result[3])
+
+
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -458,7 +473,6 @@ class CR(commands.Cog):
                     (ctx.guild.id, "ALLOW_CLAN_DATA"),
                 )
                 result = await cur.fetchall()
-            clans = []
             for server in result:
                 # Get Server clan_name based server[2] value
                 pool = await get_db(self.bot)
@@ -469,8 +483,10 @@ class CR(commands.Cog):
                             (server[1], "GUILD_NAME"),
                         )
                         new_result = await cur.fetchone()
-                        clans.append(new_result[3])
-
+                        if new_result:
+                            clans.append(new_result[3])
+        if not clans:
+            raise Exception("No clans found. Use !set_home_role and !set_clan_name to set up your server")
         # Make sure that ctx.author.id is in the list of clans
         pool = await get_db(self.bot)
         async with pool.acquire() as conn:
@@ -486,6 +502,7 @@ class CR(commands.Cog):
                         "You can't use this command here. You are not in the clan or correct server"
                     )
                     return
+
 
         pool = await get_db(self.bot)
         # filter by input, which can be a class or cr, res, bg

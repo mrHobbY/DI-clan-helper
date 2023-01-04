@@ -1,5 +1,6 @@
 from discord.ext import commands, tasks, bridge
 import discord
+import re
 from .utils import *
 
 
@@ -33,7 +34,7 @@ class Admin(commands.Cog):
                 else:
                     await cur.execute(
                         "INSERT INTO configs (guild, setting, value) VALUES (%s, %s, %s)",
-                        (guild_id, guild_name),
+                        (guild_id,"GUILD_NAME", guild_name),
                     )
         await ctx.message.add_reaction("✅")
 
@@ -41,14 +42,16 @@ class Admin(commands.Cog):
     @bridge.has_permissions(administrator=True)
     async def set_home_role(self, ctx, role):
         guild_id = ctx.guild.id
-        role_type = type(role)
-        if role_type == discord.Role:
-            role_id = role.id
-        elif role_type == int:
-            role_id = role
+
+        # User can pass either ID or '<@&986385914995544107>' format
+        if re.match(r"<@&\d+>", role):
+            role_id = int(role[3:-1])
+        elif re.match(r"\d+", role):
+            role_id = int(role)
         else:
             await ctx.respond("Pass role_id or @role")
             return
+
         # get role name by id
         role_name = ctx.guild.get_role(role_id).name
         pool = await get_db(self.bot)
@@ -63,17 +66,12 @@ class Admin(commands.Cog):
                 if guild_exists:
                     await cur.execute(
                         "UPDATE configs SET value = %s WHERE guild = %s AND setting = 'GUILD_HOME_ROLE'",
-                        (role, guild_id),
+                        (role_id, guild_id),
                     )
                 else:
                     await cur.execute(
                         "INSERT INTO configs (guild, setting, value) VALUES (%s, 'GUILD_HOME_ROLE', %s)",
-                        (guild_id, role),
-                    )
-                    # also insert ALLOW_CLAN_DATA
-                    await cur.execute(
-                        "INSERT INTO configs (guild, setting, value) VALUES (%s, 'ALLOW_CLAN_DATA', %s)",
-                        (guild_id, guild_id),
+                        (guild_id, role_id),
                     )
 
         await ctx.message.add_reaction("✅")
