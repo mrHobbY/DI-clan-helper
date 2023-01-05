@@ -1,6 +1,7 @@
 from discord.ext import commands, tasks, bridge
 import discord
 from collections import defaultdict
+import re
 from .utils import *
 
 
@@ -141,7 +142,6 @@ class RoleSync(commands.Cog):
                 ]
 
                 for source_member in source_guild_members_with_role:
-
                     # get the target guild member with the same name
                     target_member = target_guild.get_member(source_member.id)
                     if not target_member:
@@ -153,9 +153,8 @@ class RoleSync(commands.Cog):
                         if target_member.nick
                         else target_member.display_name
                     )
-                    target_member_name_no_prefix = target_member_name.replace(
-                        f"[{source_guild_dict['prefix']}] ", ""
-                    )
+                    #using re replace anything in square brackets and optional space after with nothing
+                    target_member_name_no_prefix = re.sub(r"\s?\[.*?\]\s?", "", target_member_name)
 
                     source_member_name = (
                         source_member.nick
@@ -164,34 +163,19 @@ class RoleSync(commands.Cog):
                     )
                     # sanitize source member name and remove prefix
 
-                    pool = await get_db(self.bot)
-                    async with pool.acquire() as conn:
-                        async with conn.cursor() as cur:
-                            await cur.execute("select distinct clan_name from DISCORD")
-                            result = await cur.fetchall()
-                    # convert results to bracket wrapped list
-                    clan_list = []
-                    for clan in result:
-                        if clan[0] is not None:
-                            clan_list.append(f"[{clan[0]}] ")
-
-                    for word in clan_list:
-                        source_member_name = source_member_name.replace(word, "")
-
+                    sanitized_source_member_name = re.sub(r"\s?\[.*?\]\s?", "", source_member_name)
                     source_member_name_with_prefix = (
-                        f"[{source_guild_dict['prefix']}] {source_member_name}"
+                        f"[{source_guild_dict['prefix']}] {sanitized_source_member_name}"
                     )
-                    source_member_name_no_prefix = source_member_name.replace(
-                        prefix, ""
-                    )
+                    source_member_name_no_prefix = re.sub(r"\s?\[.*?\]\s?", "", source_member_name_with_prefix)
 
                     # if the names are different, change the name
                     if target_member_name_no_prefix != source_member_name_no_prefix:
                         print(
-                            f"Changing {target_member_name} to [{prefix}] {source_member_name} in {target_guild.name}"
+                            f"Changing {target_member_name} to [{prefix}] {source_member_name_no_prefix} in {target_guild.name}"
                         )
                         try:
-                            nick = f"[{prefix}] {source_member_name}"
+                            nick = f"[{prefix}] {source_member_name_no_prefix}"
                             await target_member.edit(
                                 # trim to 32 characters to avoid discord name length limit
                                 nick=nick[:32],
@@ -202,15 +186,15 @@ class RoleSync(commands.Cog):
                             )
                     elif source_member_name_with_prefix != target_member_name:
                         print(
-                            f"Changing {target_member_name} to [{prefix}] {source_member_name} in {target_guild.name}"
+                            f"Changing {target_member_name} to [{prefix}] {source_member_name_no_prefix} in {target_guild.name}"
                         )
                         try:
                             await target_member.edit(
-                                nick=f"[{prefix}] {source_member_name}"
+                                nick=f"[{prefix}] {source_member_name_no_prefix}"
                             )
                         except discord.Forbidden:
                             print(
-                                f"Could not change {target_member_name} to [{prefix}] {source_member_name} in {target_guild.name}"
+                                f"Could not change {target_member_name} to [{prefix}] {source_member_name_no_prefix} in {target_guild.name}"
                             )
                 for (
                     gone_source_member

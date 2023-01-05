@@ -410,6 +410,8 @@ class CR(commands.Cog):
                         result[2] = "Unknown"
                     if result[3] == "":
                         result[3] = "Unknown"
+                    if result[8] == "":
+                        result[8] = "Unknown"
                     embed = discord.Embed(color=discord.Color.red())
                     embed.set_author(name=result[1])
                     embed.add_field(name="Known as", value=result[1], inline=False)
