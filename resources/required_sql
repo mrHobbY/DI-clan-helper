@@ -44,6 +44,17 @@ CREATE TABLE `kion` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 )
 
+CREATE TABLE `rolesyncer` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sourceguildid` VARCHAR(45) NOT NULL,
+  `sourceroleid` VARCHAR(45) NOT NULL,
+  `targetguildid` VARCHAR(45) NOT NULL,
+  `targetroleid` VARCHAR(45) NOT NULL,
+  `need_prefix` TINYINT NOT NULL,
+  `prefix` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
+
 
 INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Wednesday", "12:00 pm", NULL, "World", 1);
 INSERT INTO events (name, location, day, time,duration,type,repeating) VALUES ("Ancient Nightmare", "Mount Zavain", "Wednesday", "8:30 pm", NULL, "World", 1);
