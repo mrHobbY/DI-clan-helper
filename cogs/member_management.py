@@ -12,11 +12,11 @@ def class_map(cls):
     cls = cls.lower()
     if cls in ["necro", "necromancer", "n", "necr"]:
         return "Necromancer"
-    elif cls in ["wiz", "wizard", 'w', 'mage']:
+    elif cls in ["wiz", "wizard", "w", "mage"]:
         return "Wizard"
-    elif cls in ["hunt", 'hunter', 'h', 'hntr']:
+    elif cls in ["hunt", "hunter", "h", "hntr", "dh", "demon hunter", "demonhunter"]:
         return "Hunter"
-    elif cls in ["barb", 'b', 'barbarian', 'barby', 'bb']:
+    elif cls in ["barb", "b", "barbarian", "barby", "bb"]:
         return "Barbarian"
     elif cls in ["m", "monk"]:
         return "Monk"
